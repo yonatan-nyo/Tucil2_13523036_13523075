@@ -23,8 +23,8 @@ public:
     // toX and toY not included (exclusive)
     Pixel getMean(int fromX, int fromY, int toX, int toY) const;
     Pixel getVariance(int fromX, int fromY, int toX, int toY) const;
-    // Pixel getMeanAbsoluteDeviation(int fromX, int fromY, int toX, int toY) const;
-    // Pixel getMaxPixelDifference(int fromX, int fromY, int toX, int toY) const;
+    Pixel getMeanAbsoluteDeviation(int fromX, int fromY, int toX, int toY) const;
+    Pixel getMaxPixelDifference(int fromX, int fromY, int toX, int toY) const;
     // Pixel getEntropy(int fromX, int fromY, int toX, int toY) const;
     // Pixel getStructuralSimilarityIndex(int fromX, int fromY, int toX, int toY) const;
 

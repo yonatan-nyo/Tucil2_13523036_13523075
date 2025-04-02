@@ -1,4 +1,5 @@
 #include "image.hpp"
+#include <cmath>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -88,4 +89,49 @@ Pixel Image::getVariance(int fromX, int fromY, int toX, int toY) const {
         static_cast<unsigned char>(min(255.0, sumG)),
         static_cast<unsigned char>(min(255.0, sumB)),
         static_cast<unsigned char>(min(255.0, sumA)));
+}
+
+Pixel Image::getMeanAbsoluteDeviation(int fromX, int fromY, int toX, int toY) const {
+    Pixel mean = getMean(fromX, fromY, toX, toY);
+    double sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    int count = (toX - fromX) * (toY - fromY);
+
+    if (count == 0)
+        return Pixel(0, 0, 0, 0);
+
+    for (int y = fromY; y < toY; ++y) {
+        for (int x = fromX; x < toX; ++x) {
+            const Pixel &p = pixels[y][x];
+            sumR += abs(p.r - mean.r) / count;
+            sumG += abs(p.g - mean.g) / count;
+            sumB += abs(p.b - mean.b) / count;
+            sumA += abs(p.a - mean.a) / count;
+        }
+    }
+
+    return Pixel(
+        static_cast<unsigned char>(min(255.0, sumR)),
+        static_cast<unsigned char>(min(255.0, sumG)),
+        static_cast<unsigned char>(min(255.0, sumB)),
+        static_cast<unsigned char>(min(255.0, sumA)));
+}
+
+Pixel Image::getMaxPixelDifference(int fromX, int fromY, int toX, int toY) const {
+    int maxDiffR = 0, maxDiffG = 0, maxDiffB = 0, maxDiffA = 0;
+
+    for (int y = fromY; y < toY; ++y) {
+        for (int x = fromX; x < toX; ++x) {
+            const Pixel &p = pixels[y][x];
+            maxDiffR = max(maxDiffR, abs(p.r - 0));
+            maxDiffG = max(maxDiffG, abs(p.g - 0));
+            maxDiffB = max(maxDiffB, abs(p.b - 0));
+            maxDiffA = max(maxDiffA, abs(p.a - 0));
+        }
+    }
+
+    return Pixel(
+        static_cast<unsigned char>(min(255, maxDiffR)),
+        static_cast<unsigned char>(min(255, maxDiffG)),
+        static_cast<unsigned char>(min(255, maxDiffB)),
+        static_cast<unsigned char>(min(255, maxDiffA)));
 }
