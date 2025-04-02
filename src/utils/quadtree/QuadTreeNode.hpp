@@ -40,6 +40,7 @@ public:
     Pixel getEntropy(vector<Pixel> &pixels) const;
     // Pixel getStructuralSimilarityIndex(vector<Pixel> &pixels, Pixel &meanPixel) const;
 
+    pair<int, int> getStat() const;
     void buildMatrix(vector<vector<Pixel>> &imageMatrix) const;
 };
 

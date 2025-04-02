@@ -1,7 +1,9 @@
+#include <chrono>
 #include <filesystem>
 #include <iostream>
 #include <string>
 
+#include "utils/image/File.hpp"
 #include "utils/image/Image.hpp"
 #include "utils/quadtree/QuadTreeNode.hpp"
 
@@ -62,6 +64,9 @@ int main() {
 
         cout << "Processing image with method " << pickMethod << " and threshold " << treshold << endl;
         cout << "Minimum block size: " << minBlockSize << endl;
+
+        auto start = chrono::high_resolution_clock::now();
+
         QuadTreeNode quadRoot(inputImage, pickMethod, treshold, minBlockSize);
         cout << "QuadTreeNode initialized." << endl;
         // quadRoot.debugTree();
@@ -74,6 +79,20 @@ int main() {
         cout << "Saving image..." << endl;
         Image::saveFromMatrix(imageMatrix, inputImage.width, inputImage.height, resultPath);
         cout << "Image saved." << endl;
+        cout << endl;
+
+        auto end = chrono::high_resolution_clock::now();
+        chrono::duration<double> duration = end - start;
+        cout << "====== stats =======" << endl;
+        cout << "Waktu Eksekusi: " << duration.count() << " seconds" << endl;
+        long long inputSize = File::getFileSize(inputFilename);
+        long long outputSize = File::getFileSize(resultPath);
+        cout << "Ukuran Gambar sebelum: " << inputSize << " bit" << endl;
+        cout << "Ukuran Gambar setelah: " << File::getFileSize(resultPath) << " bit" << endl;
+        cout << "Persentase kompresi: " << (1 - (static_cast<double>(outputSize) / inputSize)) * 100 << "%" << endl;
+        auto stat = quadRoot.getStat();
+        cout << "Kedalaman QuadTree: " << stat.first << endl;
+        cout << "Jumlah Simpul: " << stat.second << endl;
 
     } catch (const exception &e) {
         cerr << "Exception: " << e.what() << endl;

@@ -283,3 +283,19 @@ void QuadTreeNode::buildMatrix(vector<vector<Pixel>> &imageMatrix) const {
         }
     }
 }
+
+pair<int, int> QuadTreeNode::getStat() const {
+    if (!divided) {
+        return {1, 1}; // Depth = 1, Node count = 1 (leaf node)
+    } else {
+        pair<int, int> northwestStat = northwest ? northwest->getStat() : make_pair(0, 0);
+        pair<int, int> northeastStat = northeast ? northeast->getStat() : make_pair(0, 0);
+        pair<int, int> southwestStat = southwest ? southwest->getStat() : make_pair(0, 0);
+        pair<int, int> southeastStat = southeast ? southeast->getStat() : make_pair(0, 0);
+
+        int depth = 1 + max({northwestStat.first, northeastStat.first, southwestStat.first, southeastStat.first});
+        int nodeCount = 1 + northwestStat.second + northeastStat.second + southwestStat.second + southeastStat.second;
+
+        return {depth, nodeCount};
+    }
+}
