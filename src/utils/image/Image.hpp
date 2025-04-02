@@ -19,8 +19,10 @@ public:
     Image(const string &filename);
 
     int getPixelCount() const;
-    // Pixel getMean(int fromX, int fromY, int toX, int toY) const;
-    // Pixel getVariance(int fromX, int fromY, int toX, int toY) const;
+
+    // toX and toY not included (exclusive)
+    Pixel getMean(int fromX, int fromY, int toX, int toY) const;
+    Pixel getVariance(int fromX, int fromY, int toX, int toY) const;
     // Pixel getMeanAbsoluteDeviation(int fromX, int fromY, int toX, int toY) const;
     // Pixel getMaxPixelDifference(int fromX, int fromY, int toX, int toY) const;
     // Pixel getEntropy(int fromX, int fromY, int toX, int toY) const;

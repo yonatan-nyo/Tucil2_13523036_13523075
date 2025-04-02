@@ -40,3 +40,52 @@ ostream &operator<<(ostream &os, const Image &image) {
     os << "Total Pixels: " << image.getPixelCount() << "\n";
     return os;
 }
+
+Pixel Image::getMean(int fromX, int fromY, int toX, int toY) const {
+    double sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    int count = (toX - fromX) * (toY - fromY);
+
+    if (count == 0)
+        return Pixel(0, 0, 0, 0);
+
+    for (int y = fromY; y < toY; ++y) {
+        for (int x = fromX; x < toX; ++x) {
+            const Pixel &p = pixels[y][x];
+            sumR += p.r / count;
+            sumG += p.g / count;
+            sumB += p.b / count;
+            sumA += p.a / count;
+        }
+    }
+
+    return Pixel(
+        static_cast<unsigned char>(min(255.0, sumR)),
+        static_cast<unsigned char>(min(255.0, sumG)),
+        static_cast<unsigned char>(min(255.0, sumB)),
+        static_cast<unsigned char>(min(255.0, sumA)));
+}
+
+Pixel Image::getVariance(int fromX, int fromY, int toX, int toY) const {
+    Pixel mean = getMean(fromX, fromY, toX, toY);
+    double sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    int count = (toX - fromX) * (toY - fromY);
+
+    if (count == 0)
+        return Pixel(0, 0, 0, 0);
+
+    for (int y = fromY; y < toY; ++y) {
+        for (int x = fromX; x < toX; ++x) {
+            const Pixel &p = pixels[y][x];
+            sumR += pow(p.r - mean.r, 2) / count;
+            sumG += pow(p.g - mean.g, 2) / count;
+            sumB += pow(p.b - mean.b, 2) / count;
+            sumA += pow(p.a - mean.a, 2) / count;
+        }
+    }
+
+    return Pixel(
+        static_cast<unsigned char>(min(255.0, sumR)),
+        static_cast<unsigned char>(min(255.0, sumG)),
+        static_cast<unsigned char>(min(255.0, sumB)),
+        static_cast<unsigned char>(min(255.0, sumA)));
+}
