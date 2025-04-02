@@ -3,6 +3,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <string>
+#include <unordered_map>
 #include <vector>
 #define STB_IMAGE_IMPLEMENTATION
 #include "../../include/stb_image.h"
@@ -134,4 +135,51 @@ Pixel Image::getMaxPixelDifference(int fromX, int fromY, int toX, int toY) const
         static_cast<unsigned char>(min(255, maxDiffG)),
         static_cast<unsigned char>(min(255, maxDiffB)),
         static_cast<unsigned char>(min(255, maxDiffA)));
+}
+
+Pixel Image::getEntropy(int fromX, int fromY, int toX, int toY) const {
+    unordered_map<unsigned char, int> freqR, freqG, freqB, freqA;
+
+    int count = (toX - fromX) * (toY - fromY);
+
+    if (count == 0)
+        return Pixel(0, 0, 0, 0);
+
+    // Count the frequency of each color channel
+    for (int y = fromY; y < toY; ++y) {
+        for (int x = fromX; x < toX; ++x) {
+            const Pixel &p = pixels[y][x];
+            freqR[p.r]++;
+            freqG[p.g]++;
+            freqB[p.b]++;
+            freqA[p.a]++;
+        }
+    }
+
+    // Calculate entropy for each channel
+    double entropyR = 0, entropyG = 0, entropyB = 0, entropyA = 0;
+
+    for (const auto &entry : freqR) {
+        double p = static_cast<double>(entry.second) / count;
+        entropyR -= p * log2(p);
+    }
+    for (const auto &entry : freqG) {
+        double p = static_cast<double>(entry.second) / count;
+        entropyG -= p * log2(p);
+    }
+    for (const auto &entry : freqB) {
+        double p = static_cast<double>(entry.second) / count;
+        entropyB -= p * log2(p);
+    }
+    for (const auto &entry : freqA) {
+        double p = static_cast<double>(entry.second) / count;
+        entropyA -= p * log2(p);
+    }
+
+    // Normalize entropy and return as a Pixel (clamp to 255)
+    return Pixel(
+        static_cast<unsigned char>(min(255.0, entropyR)),
+        static_cast<unsigned char>(min(255.0, entropyG)),
+        static_cast<unsigned char>(min(255.0, entropyB)),
+        static_cast<unsigned char>(min(255.0, entropyA)));
 }

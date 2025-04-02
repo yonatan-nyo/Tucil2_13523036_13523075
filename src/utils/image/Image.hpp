@@ -25,7 +25,7 @@ public:
     Pixel getVariance(int fromX, int fromY, int toX, int toY) const;
     Pixel getMeanAbsoluteDeviation(int fromX, int fromY, int toX, int toY) const;
     Pixel getMaxPixelDifference(int fromX, int fromY, int toX, int toY) const;
-    // Pixel getEntropy(int fromX, int fromY, int toX, int toY) const;
+    Pixel getEntropy(int fromX, int fromY, int toX, int toY) const;
     // Pixel getStructuralSimilarityIndex(int fromX, int fromY, int toX, int toY) const;
 
     friend ostream &operator<<(ostream &os, const Image &image);
