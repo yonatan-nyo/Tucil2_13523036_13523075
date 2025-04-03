@@ -23,7 +23,7 @@ private:
     void showTree(int startIndentation) const;
     double computeEntropy(unordered_map<int, int> &frequencyMap, int totalPixels) const;
     Pixel computeAveragePixel(vector<Pixel> &pixels) const;
-    double computeError(int pickMethod, vector<Pixel> &pixels, Pixel &meanPixel) const;
+    double computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const;
     void buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, int threshold, int minBlockSize);
     void deleteChildren();
 
@@ -34,10 +34,10 @@ public:
     ~QuadTreeNode();
 
     void debugTree() const;
-    Pixel getVariance(vector<Pixel> &pixels, Pixel &meanPixel) const;
-    Pixel getMeanAbsoluteDeviation(vector<Pixel> &pixels, Pixel &meanPixel) const;
-    Pixel getMaxPixelDifference(vector<Pixel> &pixels, Pixel &meanPixel) const;
-    Pixel getEntropy(vector<Pixel> &pixels) const;
+    Pixel getVariance(Image &image, int fromX, int fromY, int toX, int toY) const;
+    Pixel getMeanAbsoluteDeviation(Image &image, int fromX, int fromY, int toX, int toY) const;
+    Pixel getMaxPixelDifference(Image &image, int fromX, int fromY, int toX, int toY) const;
+    Pixel getEntropy(Image &image, int fromX, int fromY, int toX, int toY) const;
     // Pixel getStructuralSimilarityIndex(vector<Pixel> &pixels, Pixel &meanPixel) const;
 
     pair<int, int> getStat() const;
