@@ -24,13 +24,13 @@ private:
     double computeEntropy(unordered_map<int, int> &frequencyMap, int totalPixels) const;
     Pixel computeAveragePixel(vector<Pixel> &pixels) const;
     double computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const;
-    void buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, int threshold, int minBlockSize);
+    void buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize);
     void deleteChildren();
 
 public:
     QuadTreeNode() = default;
-    QuadTreeNode(Image &image, int pickMethod, int treshold, int minBlockSize);
-    QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, int treshold, int minBlockSize);
+    QuadTreeNode(Image &image, int pickMethod, double treshold, int minBlockSize);
+    QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double treshold, int minBlockSize);
     ~QuadTreeNode();
 
     void debugTree() const;

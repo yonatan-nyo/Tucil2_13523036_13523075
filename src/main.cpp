@@ -10,7 +10,7 @@
 namespace fs = std::filesystem;
 using namespace std;
 
-void initialize(string &inputFilename, string &resultPath, int &pickMethod, int &treshold, int &minBlockSize, Image &inputImage) {
+void initialize(string &inputFilename, string &resultPath, int &pickMethod, double &treshold, int &minBlockSize, Image &inputImage) {
     // Input image filename
     cout << "Enter image file name: ";
     getline(cin, inputFilename);
@@ -41,12 +41,44 @@ void initialize(string &inputFilename, string &resultPath, int &pickMethod, int 
     cout << "Masukkan metode (1-5): ";
     cin >> pickMethod;
     cout << endl;
+    double minThreshold, maxThreshold;
+
+    if (pickMethod == 1) {
+        minThreshold = 0;
+        maxThreshold = 65025.0; // 255^2 for maximum variance
+    } else if (pickMethod == 2 || pickMethod == 3) {
+        minThreshold = 0;
+        maxThreshold = 255.0;
+    } else if (pickMethod == 4) {
+        minThreshold = 0;
+        maxThreshold = 8.0; // Entropy (log2(256)) for 8-bit color values
+    } else if (pickMethod == 5) {
+        minThreshold = -1.0;
+        maxThreshold = 1.0;
+    } else {
+        throw invalid_argument("Invalid method selected.");
+    }
 
     cout << "Masukkan Treshold (ambang batas): ";
     cin >> treshold;
+    // check treshold according to min max method treshold, if <min use min, if >max use max
+    if (treshold < minThreshold) {
+        cout << "Treshold tidak boleh kurang dari " << minThreshold << ", di set ke " << minThreshold << endl;
+        treshold = minThreshold;
+    } else if (treshold > maxThreshold) {
+        cout << "Treshold tidak boleh lebih dari " << maxThreshold << ", di set ke " << maxThreshold << endl;
+        treshold = maxThreshold;
+    }
+
     cout << "Masukkan ukuran blok minimum: ";
     cin >> minBlockSize;
-    cout << "Masukkan alamat file hasil: ";
+    if (minBlockSize < 1) {
+        cout << "Ukuran blok minimum tidak boleh kurang dari 1!" << endl;
+        minBlockSize = 1;
+        cout << "Ukuran blok minimum di set ke 1!" << endl;
+    }
+    cout << "Masukkan alamat file hasil (test/[nama_file].png)" << endl;
+    cout << "contoh (test/a1.png): ";
     cin >> resultPath;
     cout << endl;
 
@@ -58,7 +90,8 @@ void initialize(string &inputFilename, string &resultPath, int &pickMethod, int 
 int main() {
     try {
         string inputFilename, resultPath;
-        int pickMethod, treshold, minBlockSize;
+        int pickMethod, minBlockSize;
+        double treshold;
         Image inputImage;
         initialize(inputFilename, resultPath, pickMethod, treshold, minBlockSize, inputImage);
 

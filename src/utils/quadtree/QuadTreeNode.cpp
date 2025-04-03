@@ -135,7 +135,7 @@ Pixel QuadTreeNode::getEntropy(Image &image, int fromX, int fromY, int toX, int 
     return entropyPixel;
 }
 
-QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, int threshold, int minBlockSize)
+QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, double threshold, int minBlockSize)
     : width(image.width), height(image.height), divided(false), northwest(nullptr), northeast(nullptr), southwest(nullptr), southeast(nullptr) {
     if (image.getPixelCount() == 0) {
         cout << "[QuadTree] Image is empty." << endl;
@@ -147,7 +147,7 @@ QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, int threshold, int minB
     buildTree(image, 0, 0, width, height, pickMethod, threshold, minBlockSize);
 }
 
-void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, int threshold, int minBlockSize) {
+void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize) {
     width = toX - fromX;
     height = toY - fromY;
 
@@ -170,7 +170,7 @@ void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int to
         meanPixel = computeAveragePixel(pixelGroup);
 
         double error = computeError(pickMethod, image, fromX, fromY, toX, toY);
-        if (error < static_cast<double>(threshold)) {
+        if (error < threshold) {
             deleteChildren();
             divided = false;
         }
@@ -179,7 +179,7 @@ void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int to
     }
 }
 
-QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, int threshold, int minBlockSize) {
+QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize) {
     this->fromX = fromX;
     this->fromY = fromY;
     width = toX - fromX;
@@ -202,7 +202,7 @@ QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY,
         meanPixel = computeAveragePixel(pixelGroup);
 
         double error = computeError(pickMethod, image, fromX, fromY, toX, toY);
-        if (error < static_cast<double>(threshold)) {
+        if (error < threshold) {
             deleteChildren();
             divided = false;
         }
