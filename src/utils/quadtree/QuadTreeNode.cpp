@@ -159,6 +159,13 @@ QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, double threshold, int m
     buildTree(image, 0, 0, width, height, pickMethod, threshold, minBlockSize);
 }
 
+bool QuadTreeNode::isCanDivide(int width, int height, int minBlockSize) const {
+    // static cast size to double to avoid integer division
+    double minBlockSizeD = static_cast<double>(minBlockSize);
+    double curSize = static_cast<double>(width * height);
+    return ((curSize / 4) > minBlockSizeD) && width > 1 && height > 1;
+}
+
 void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize) {
     width = toX - fromX;
     height = toY - fromY;
@@ -167,7 +174,7 @@ void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int to
         throw invalid_argument("Invalid dimensions for QuadTreeNode.");
     }
 
-    if ((width * height) > minBlockSize && width > 1 && height > 1) {
+    if (isCanDivide(width, height, minBlockSize)) {
         int midX = (fromX + toX) / 2;
         int midY = (fromY + toY) / 2;
         divided = true;
@@ -200,7 +207,7 @@ QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY,
         throw invalid_argument("Invalid dimensions for QuadTreeNode.");
     }
 
-    if ((width * height) > minBlockSize && width > 1 && height > 1) {
+    if (isCanDivide(width, height, minBlockSize)) {
         divided = true;
         int midX = (fromX + toX) / 2;
         int midY = (fromY + toY) / 2;

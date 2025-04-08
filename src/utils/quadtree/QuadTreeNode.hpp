@@ -25,6 +25,7 @@ private:
     Pixel computeAveragePixel(vector<Pixel> &pixels) const;
     double computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const;
     void buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize);
+    bool isCanDivide(int width, int height, int minBlockSize) const;
     void deleteChildren();
 
 public:
