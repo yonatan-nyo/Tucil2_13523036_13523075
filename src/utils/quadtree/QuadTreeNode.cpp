@@ -39,10 +39,10 @@ Pixel QuadTreeNode::getVariance(Image &image, int fromX, int fromY, int toX, int
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
             Pixel p = image.pixels[y][x];
-            double diffR = p.r - meanPixel.r;
-            double diffG = p.g - meanPixel.g;
-            double diffB = p.b - meanPixel.b;
-            double diffA = p.a - meanPixel.a;
+            double diffR = static_cast<double>(p.r) - static_cast<double>(meanPixel.r);
+            double diffG = static_cast<double>(p.g) - static_cast<double>(meanPixel.g);
+            double diffB = static_cast<double>(p.b) - static_cast<double>(meanPixel.b);
+            double diffA = static_cast<double>(p.a) - static_cast<double>(meanPixel.a);
 
             retR += (diffR * diffR) / count;
             retG += (diffG * diffG) / count;
@@ -51,7 +51,12 @@ Pixel QuadTreeNode::getVariance(Image &image, int fromX, int fromY, int toX, int
         }
     }
 
-    return Pixel(retR, retG, retB, retA);
+    // Clamp values to valid unsigned char range
+    return Pixel(
+        min(255.0, max(0.0, retR)),
+        min(255.0, max(0.0, retG)),
+        min(255.0, max(0.0, retB)),
+        min(255.0, max(0.0, retA)));
 }
 
 Pixel QuadTreeNode::getMeanAbsoluteDeviation(Image &image, int fromX, int fromY, int toX, int toY) const {
@@ -64,14 +69,19 @@ Pixel QuadTreeNode::getMeanAbsoluteDeviation(Image &image, int fromX, int fromY,
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
             Pixel p = image.pixels[y][x];
-            retR += abs(p.r - meanPixel.r) / count;
-            retG += abs(p.g - meanPixel.g) / count;
-            retB += abs(p.b - meanPixel.b) / count;
-            retA += abs(p.a - meanPixel.a) / count;
+            retR += abs(static_cast<int>(p.r) - static_cast<int>(meanPixel.r)) / count;
+            retG += abs(static_cast<int>(p.g) - static_cast<int>(meanPixel.g)) / count;
+            retB += abs(static_cast<int>(p.b) - static_cast<int>(meanPixel.b)) / count;
+            retA += abs(static_cast<int>(p.a) - static_cast<int>(meanPixel.a)) / count;
         }
     }
 
-    return Pixel(retR, retG, retB, retA);
+    // Clamp values to valid unsigned char range
+    return Pixel(
+        min(255.0, max(0.0, retR)),
+        min(255.0, max(0.0, retG)),
+        min(255.0, max(0.0, retB)),
+        min(255.0, max(0.0, retA)));
 }
 
 Pixel QuadTreeNode::getMaxPixelDifference(Image &image, int fromX, int fromY, int toX, int toY) const {
@@ -80,10 +90,10 @@ Pixel QuadTreeNode::getMaxPixelDifference(Image &image, int fromX, int fromY, in
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
             Pixel p = image.pixels[y][x];
-            maxDiffR = max(maxDiffR, abs(p.r - meanPixel.r));
-            maxDiffG = max(maxDiffG, abs(p.g - meanPixel.g));
-            maxDiffB = max(maxDiffB, abs(p.b - meanPixel.b));
-            maxDiffA = max(maxDiffA, abs(p.a - meanPixel.a));
+            maxDiffR = max(maxDiffR, abs(static_cast<int>(p.r) - static_cast<int>(meanPixel.r)));
+            maxDiffG = max(maxDiffG, abs(static_cast<int>(p.g) - static_cast<int>(meanPixel.g)));
+            maxDiffB = max(maxDiffB, abs(static_cast<int>(p.b) - static_cast<int>(meanPixel.b)));
+            maxDiffA = max(maxDiffA, abs(static_cast<int>(p.a) - static_cast<int>(meanPixel.a)));
         }
     }
 
@@ -125,12 +135,14 @@ Pixel QuadTreeNode::getEntropy(Image &image, int fromX, int fromY, int toX, int 
     double entropyB = computeEntropy(freqB, totalPixels);
     double entropyA = computeEntropy(freqA, totalPixels);
 
-    int entropyRGB = static_cast<int>((entropyR + entropyG + entropyB + entropyA) / 4.0);
+    // Clamp entropy values to valid unsigned char range
+    double entropyRGB = (entropyR + entropyG + entropyB + entropyA) / 4.0;
+    unsigned char clampedEntropy = static_cast<unsigned char>(min(255.0, max(0.0, entropyRGB)));
 
-    entropyPixel.r = entropyRGB;
-    entropyPixel.g = entropyRGB;
-    entropyPixel.b = entropyRGB;
-    entropyPixel.a = entropyRGB;
+    entropyPixel.r = clampedEntropy;
+    entropyPixel.g = clampedEntropy;
+    entropyPixel.b = clampedEntropy;
+    entropyPixel.a = clampedEntropy;
 
     return entropyPixel;
 }

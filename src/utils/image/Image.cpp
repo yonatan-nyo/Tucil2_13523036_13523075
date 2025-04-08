@@ -46,7 +46,7 @@ ostream &operator<<(ostream &os, const Image &image) {
 }
 
 Pixel Image::getMean(int fromX, int fromY, int toX, int toY) const {
-    double sumR = 0, sumG = 0, sumB = 0, sumA = 0;
+    double retR = 0, retG = 0, retB = 0, retA = 0;
     int count = (toX - fromX) * (toY - fromY);
 
     if (count == 0)
@@ -55,18 +55,14 @@ Pixel Image::getMean(int fromX, int fromY, int toX, int toY) const {
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
             const Pixel &p = pixels[y][x];
-            sumR += p.r / count;
-            sumG += p.g / count;
-            sumB += p.b / count;
-            sumA += p.a / count;
+            retR += static_cast<double>(p.r) / count;
+            retG += static_cast<double>(p.g) / count;
+            retB += static_cast<double>(p.b) / count;
+            retA += static_cast<double>(p.a) / count;
         }
     }
 
-    return Pixel(
-        static_cast<unsigned char>(min(255.0, sumR)),
-        static_cast<unsigned char>(min(255.0, sumG)),
-        static_cast<unsigned char>(min(255.0, sumB)),
-        static_cast<unsigned char>(min(255.0, sumA)));
+    return Pixel(retR, retG, retB, retA);
 }
 
 bool Image::saveFromMatrix(const vector<vector<Pixel>> &imageMatrix, int width, int height, const string &filePath) {
