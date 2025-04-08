@@ -69,10 +69,10 @@ Pixel QuadTreeNode::getMeanAbsoluteDeviation(Image &image, int fromX, int fromY,
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
             Pixel p = image.pixels[y][x];
-            retR += abs(static_cast<int>(p.r) - static_cast<int>(meanPixel.r)) / count;
-            retG += abs(static_cast<int>(p.g) - static_cast<int>(meanPixel.g)) / count;
-            retB += abs(static_cast<int>(p.b) - static_cast<int>(meanPixel.b)) / count;
-            retA += abs(static_cast<int>(p.a) - static_cast<int>(meanPixel.a)) / count;
+            retR += abs(static_cast<double>(p.r) - static_cast<double>(meanPixel.r)) / count;
+            retG += abs(static_cast<double>(p.g) - static_cast<double>(meanPixel.g)) / count;
+            retB += abs(static_cast<double>(p.b) - static_cast<double>(meanPixel.b)) / count;
+            retA += abs(static_cast<double>(p.a) - static_cast<double>(meanPixel.a)) / count;
         }
     }
 
