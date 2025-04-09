@@ -27,6 +27,10 @@ private:
     void buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize);
     bool isCanDivide(int width, int height, int minBlockSize) const;
     void deleteChildren();
+    Image createMeanImage(const Image &sourceImage, int fromX, int fromY, int toX, int toY) const;
+    double SSIMmean(const Image &img, int fx, int fy, int tx, int ty, int channel) const;
+    double SSIMvariance(const Image &img, int fx, int fy, int tx, int ty, int channel, double mu) const;
+    double SSIMcovariance(const Image &img1, const Image &img2, int fx, int fy, int tx, int ty, int channel, double mu1, double mu2) const;
 
 public:
     QuadTreeNode() = default;
@@ -39,7 +43,7 @@ public:
     Pixel getMeanAbsoluteDeviation(Image &image, int fromX, int fromY, int toX, int toY) const;
     Pixel getMaxPixelDifference(Image &image, int fromX, int fromY, int toX, int toY) const;
     Pixel getEntropy(Image &image, int fromX, int fromY, int toX, int toY) const;
-    // Pixel getStructuralSimilarityIndex(vector<Pixel> &pixels, Pixel &meanPixel) const;
+    double getSSIM(Image &original, Image &compressed, int fromX, int fromY, int toX, int toY) const;
 
     pair<int, int> getStat() const;
     void buildMatrix(vector<vector<Pixel>> &imageMatrix) const;

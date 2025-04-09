@@ -7,10 +7,14 @@
 #include <unordered_map>
 #include <vector>
 
+const double C1 = (0.01 * 255) * (0.01 * 255);
+const double C2 = (0.03 * 255) * (0.03 * 255);
 using namespace std;
 
 double QuadTreeNode::computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const {
     Pixel errorPixel;
+    double errorValue = 0.0;
+
     if (pickMethod == 1) {
         errorPixel = getVariance(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 2) {
@@ -19,6 +23,12 @@ double QuadTreeNode::computeError(int pickMethod, Image &image, int fromX, int f
         errorPixel = getMaxPixelDifference(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 4) {
         errorPixel = getEntropy(image, fromX, fromY, toX, toY);
+    } else if (pickMethod == 5) {
+        // For SSIM, we want error = 1 - SSIM since SSIM of 1 means perfect similarity
+        // Create a temporary image with just the mean pixel value for comparison
+        Image meanImage = createMeanImage(image, fromX, fromY, toX, toY);
+        errorValue = 1.0 - getSSIM(image, meanImage, fromX, fromY, toX, toY);
+        return errorValue;
     } else {
         throw invalid_argument("Invalid pick method.");
     }
@@ -36,6 +46,21 @@ double QuadTreeNode::computeError(int pickMethod, Image &image, int fromX, int f
         sum += static_cast<double>(errorPixel.a);
 
     return sum / static_cast<double>(channels);
+}
+
+Image QuadTreeNode::createMeanImage(const Image &sourceImage, int fromX, int fromY, int toX, int toY) const {
+    Image meanImage;
+    meanImage.width = toX - fromX;
+    meanImage.height = toY - fromY;
+    meanImage.channels = sourceImage.channels;
+
+    // Initialize the pixel data
+    meanImage.pixels.resize(meanImage.height);
+    for (int y = 0; y < meanImage.height; y++) {
+        meanImage.pixels[y].resize(meanImage.width, meanPixel);
+    }
+
+    return meanImage;
 }
 
 Pixel QuadTreeNode::getVariance(Image &image, int fromX, int fromY, int toX, int toY) const {
@@ -154,4 +179,123 @@ Pixel QuadTreeNode::getEntropy(Image &image, int fromX, int fromY, int toX, int 
     entropyPixel.a = clampedEntropy;
 
     return entropyPixel;
+}
+
+double QuadTreeNode::SSIMmean(const Image &img, int fx, int fy, int tx, int ty, int channel) const {
+    double sum = 0.0;
+    int count = (tx - fx) * (ty - fy);
+    if (count == 0)
+        return 0.0;
+
+    for (int y = fy; y < ty; ++y) {
+        for (int x = fx; x < tx; ++x) {
+            const Pixel &p = img.pixels[y - fy][x - fx];
+            if (channel == 0)
+                sum += p.r;
+            else if (channel == 1)
+                sum += p.g;
+            else if (channel == 2)
+                sum += p.b;
+            else if (channel == 3)
+                sum += p.a;
+        }
+    }
+    return sum / count;
+}
+
+double QuadTreeNode::SSIMvariance(const Image &img, int fx, int fy, int tx, int ty, int channel, double mu) const {
+    double sumSq = 0.0;
+    int count = (tx - fx) * (ty - fy);
+    if (count == 0)
+        return 0.0;
+
+    for (int y = fy; y < ty; ++y) {
+        for (int x = fx; x < tx; ++x) {
+            const Pixel &p = img.pixels[y - fy][x - fx];
+            double val = 0.0;
+
+            if (channel == 0)
+                val = p.r;
+            else if (channel == 1)
+                val = p.g;
+            else if (channel == 2)
+                val = p.b;
+            else if (channel == 3)
+                val = p.a;
+
+            sumSq += (val - mu) * (val - mu);
+        }
+    }
+    return sumSq / count;
+}
+
+double QuadTreeNode::SSIMcovariance(const Image &img1, const Image &img2, int fx, int fy, int tx, int ty, int channel, double mu1, double mu2) const {
+    double sumCov = 0.0;
+    int count = (tx - fx) * (ty - fy);
+    if (count == 0)
+        return 0.0;
+
+    for (int y = fy; y < ty; ++y) {
+        for (int x = fx; x < tx; ++x) {
+            const Pixel &p1 = img1.pixels[y][x];
+            const Pixel &p2 = img2.pixels[y - fy][x - fx];
+            double val1 = 0.0, val2 = 0.0;
+
+            if (channel == 0) {
+                val1 = p1.r;
+                val2 = p2.r;
+            } else if (channel == 1) {
+                val1 = p1.g;
+                val2 = p2.g;
+            } else if (channel == 2) {
+                val1 = p1.b;
+                val2 = p2.b;
+            } else if (channel == 3) {
+                val1 = p1.a;
+                val2 = p2.a;
+            }
+
+            sumCov += (val1 - mu1) * (val2 - mu2);
+        }
+    }
+    return sumCov / count;
+}
+
+double QuadTreeNode::getSSIM(Image &original, Image &compressed, int fromX, int fromY, int toX, int toY) const {
+    int channels = original.channels;
+
+    if (channels <= 0 || channels > 4) {
+        throw std::invalid_argument("Unsupported number of channels.");
+    }
+
+    vector<double> weights(channels, 1.0);
+    if (channels == 3) {
+        weights = {0.2125, 0.7154, 0.0721};
+    } else if (channels == 4) {
+        weights = {0.2125, 0.7154, 0.0721, 0.1};
+    }
+
+    double totalWeight = 0.0;
+    for (double w : weights)
+        totalWeight += w;
+
+    double totalSSIM = 0.0;
+
+    for (int c = 0; c < channels; ++c) {
+        double mu1 = SSIMmean(original, fromX, fromY, toX, toY, c);
+        double mu2 = SSIMmean(compressed, fromX, fromY, toX, toY, c);
+
+        double var1 = SSIMvariance(original, fromX, fromY, toX, toY, c, mu1);
+        double var2 = SSIMvariance(compressed, fromX, fromY, toX, toY, c, mu2);
+
+        double cov = SSIMcovariance(original, compressed, fromX, fromY, toX, toY, c, mu1, mu2);
+
+        double numerator = (2 * mu1 * mu2 + C1) * (2 * cov + C2);
+        double denominator = (mu1 * mu1 + mu2 * mu2 + C1) * (var1 + var2 + C2);
+
+        double ssim = (denominator == 0.0) ? 1.0 : numerator / denominator;
+        totalSSIM += ssim * weights[c];
+    }
+
+    return totalSSIM / totalWeight;
 }
