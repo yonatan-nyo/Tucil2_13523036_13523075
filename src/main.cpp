@@ -21,7 +21,7 @@ fs::path getDefaultPath(const fs::path &inputFilePath, int pickMethod, double th
     return parentPath / ss.str();
 }
 
-void initialize(fs::path &inputFilePath, fs::path &savePath, int &pickMethod, double &treshold, int &minBlockSize, Image &inputImage) {
+void initialize(fs::path &inputFilePath, fs::path &savePath, int &pickMethod, double &threshold, int &minBlockSize, Image &inputImage) {
     // Input image filename
     cout << "Enter image file name: ";
     string inputStr;
@@ -68,14 +68,14 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, int &pickMethod, do
         throw invalid_argument("Invalid method selected.");
     }
 
-    cout << "Masukkan Treshold (ambang batas): ";
-    cin >> treshold;
-    if (treshold < minThreshold) {
-        cout << "Treshold tidak boleh kurang dari " << minThreshold << ", di set ke " << minThreshold << endl;
-        treshold = minThreshold;
-    } else if (treshold > maxThreshold) {
-        cout << "Treshold tidak boleh lebih dari " << maxThreshold << ", di set ke " << maxThreshold << endl;
-        treshold = maxThreshold;
+    cout << "Masukkan Threshold (ambang batas): ";
+    cin >> threshold;
+    if (threshold < minThreshold) {
+        cout << "Threshold tidak boleh kurang dari " << minThreshold << ", di set ke " << minThreshold << endl;
+        threshold = minThreshold;
+    } else if (threshold > maxThreshold) {
+        cout << "Threshold tidak boleh lebih dari " << maxThreshold << ", di set ke " << maxThreshold << endl;
+        threshold = maxThreshold;
     }
 
     cout << "Masukkan ukuran blok minimum: ";
@@ -86,7 +86,7 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, int &pickMethod, do
         cout << "Ukuran blok minimum di set ke 1!" << endl;
     }
 
-    fs::path defaultSavePath = getDefaultPath(inputFilePath, pickMethod, treshold, minBlockSize);
+    fs::path defaultSavePath = getDefaultPath(inputFilePath, pickMethod, threshold, minBlockSize);
     cout << "Masukkan alamat file hasil (tekan Enter untuk default):" << endl;
     cout << "[Default: " << defaultSavePath << "]" << endl;
 
@@ -108,16 +108,16 @@ int main() {
     try {
         fs::path inputFilePath, savePath;
         int pickMethod, minBlockSize;
-        double treshold;
+        double threshold;
         Image inputImage;
-        initialize(inputFilePath, savePath, pickMethod, treshold, minBlockSize, inputImage);
+        initialize(inputFilePath, savePath, pickMethod, threshold, minBlockSize, inputImage);
 
-        cout << "Processing image with method " << pickMethod << " and threshold " << treshold << endl;
+        cout << "Processing image with method " << pickMethod << " and threshold " << threshold << endl;
         cout << "Minimum block size: " << minBlockSize << endl;
 
         auto start = chrono::high_resolution_clock::now();
 
-        QuadTreeNode quadRoot(inputImage, pickMethod, treshold, minBlockSize);
+        QuadTreeNode quadRoot(inputImage, pickMethod, threshold, minBlockSize);
         cout << "QuadTreeNode initialized." << endl;
 
         cout << "Building matrix..." << endl;
