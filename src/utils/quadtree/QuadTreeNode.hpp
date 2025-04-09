@@ -47,6 +47,9 @@ public:
 
     pair<int, int> getStat() const;
     void buildMatrix(vector<vector<Pixel>> &imageMatrix) const;
+
+    void reconstructImageMatrix(vector<vector<Pixel>> &pixelMatrix, int maxDepth);
+    void reconstructImageMatrixHelper(vector<vector<Pixel>> &pixelMatrix, int currentDepth, int maxDepth);
 };
 
 #endif

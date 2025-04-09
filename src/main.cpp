@@ -6,6 +6,7 @@
 #include "utils/image/File.hpp"
 #include "utils/image/Image.hpp"
 #include "utils/quadtree/QuadTreeNode.hpp"
+#include "utils/gif/GIFMaker.hpp"
 
 namespace fs = std::filesystem;
 using namespace std;
@@ -14,6 +15,18 @@ fs::path getDefaultPath(const fs::path &inputFilePath, int pickMethod, double th
     fs::path parentPath = inputFilePath.parent_path();
     string inputBase = inputFilePath.stem().string();
     string inputExtension = inputFilePath.extension().string();
+
+    stringstream ss;
+    ss << inputBase << "_" << pickMethod << "_" << threshold << "_" << minBlockSize << inputExtension;
+
+    return parentPath / ss.str();
+}
+
+fs::path getDefaultGifPath(const fs::path &inputFilePath, int pickMethod, double threshold, int minBlockSize)
+{
+    fs::path parentPath = inputFilePath.parent_path();
+    string inputBase = inputFilePath.stem().string();
+    string inputExtension = ".gif";
 
     stringstream ss;
     ss << inputBase << "_" << pickMethod << "_" << threshold << "_" << minBlockSize << inputExtension;
@@ -120,7 +133,7 @@ int main() {
 
         QuadTreeNode quadRoot(inputImage, pickMethod, threshold, minBlockSize);
         cout << "QuadTreeNode initialized." << endl;
-        quadRoot.debugTree();
+        // quadRoot.debugTree();
 
         cout << "Building matrix..." << endl;
         vector<vector<Pixel>> imageMatrix(inputImage.height, vector<Pixel>(inputImage.width));
@@ -149,9 +162,9 @@ int main() {
         cout << "Kedalaman QuadTree: " << maxDepth << endl;
         cout << "Jumlah Simpul: " << nodeCount << endl;
 
-        // quadtree, maxdepth, inputImage
-        // quadRoot, maxDepth, inputImage (width, height, channel)
 
+        fs::path defaultGifSavePath = getDefaultGifPath(inputFilePath, pickMethod, threshold, minBlockSize);
+        GIFMaker::generateAndSave(maxDepth, &quadRoot, inputImage.width, inputImage.height, defaultGifSavePath);
     } catch (const exception &e) {
         cerr << "Exception: " << e.what() << endl;
         return 1;
