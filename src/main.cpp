@@ -87,8 +87,9 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, int &pickMethod, do
     }
 
     fs::path defaultSavePath = getDefaultPath(inputFilePath, pickMethod, threshold, minBlockSize);
-    cout << "Masukkan alamat file hasil (tekan Enter untuk default):" << endl;
+    cout << "Masukkan alamat file hasil" << endl;
     cout << "[Default: " << defaultSavePath << "]" << endl;
+    cout << "(tekan Enter untuk default): ";
 
     cin.ignore();
     string savePathStr;
@@ -142,8 +143,10 @@ int main() {
         cout << "Persentase kompresi: " << (1 - (static_cast<double>(outputSize) / inputSize)) * 100 << "%" << endl;
 
         auto stat = quadRoot.getStat();
-        cout << "Kedalaman QuadTree: " << stat.first << endl;
-        cout << "Jumlah Simpul: " << stat.second << endl;
+        int maxDepth = stat.first;
+        int nodeCount = stat.second;
+        cout << "Kedalaman QuadTree: " << maxDepth << endl;
+        cout << "Jumlah Simpul: " << nodeCount << endl;
 
     } catch (const exception &e) {
         cerr << "Exception: " << e.what() << endl;
