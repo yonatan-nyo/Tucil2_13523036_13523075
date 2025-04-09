@@ -18,6 +18,7 @@ QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, double threshold, int m
     fromX = 0;
     fromY = 0;
 
+    meanPixel = image.getMean(0, 0, width, height);
     buildTree(image, 0, 0, width, height, pickMethod, threshold, minBlockSize);
 }
 
@@ -55,9 +56,8 @@ void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int to
             deleteChildren();
             divided = false;
         }
-    } else {
-        meanPixel = image.getMean(fromX, fromY, toX, toY);
     }
+    meanPixel = image.getMean(fromX, fromY, toX, toY);
 }
 
 QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize) {
@@ -89,8 +89,8 @@ QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY,
         }
     } else {
         divided = false;
-        meanPixel = image.getMean(fromX, fromY, toX, toY);
     }
+    meanPixel = image.getMean(fromX, fromY, toX, toY);
 }
 
 void QuadTreeNode::deleteChildren() {

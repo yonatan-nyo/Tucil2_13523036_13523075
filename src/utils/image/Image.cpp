@@ -83,8 +83,8 @@ void Image::saveFromMatrix(const vector<vector<Pixel>> &imageMatrix, int width, 
     for (const auto &row : imageMatrix) {
         for (const auto &pixel : row) {
             if (channels == 1) {
-                unsigned char gray = static_cast<unsigned char>(0.299 * pixel.r + 0.587 * pixel.g + 0.114 * pixel.b);
-                outputData.push_back(gray);
+                // asumsi dari awal channel image selalu sama
+                outputData.push_back(pixel.r);
             } else if (channels == 3) {
                 outputData.push_back(pixel.r);
                 outputData.push_back(pixel.g);

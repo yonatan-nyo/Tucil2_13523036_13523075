@@ -120,6 +120,7 @@ int main() {
 
         QuadTreeNode quadRoot(inputImage, pickMethod, threshold, minBlockSize);
         cout << "QuadTreeNode initialized." << endl;
+        quadRoot.debugTree();
 
         cout << "Building matrix..." << endl;
         vector<vector<Pixel>> imageMatrix(inputImage.height, vector<Pixel>(inputImage.width));
@@ -147,6 +148,9 @@ int main() {
         int nodeCount = stat.second;
         cout << "Kedalaman QuadTree: " << maxDepth << endl;
         cout << "Jumlah Simpul: " << nodeCount << endl;
+
+        // quadtree, maxdepth, inputImage
+        // quadRoot, maxDepth, inputImage (width, height, channel)
 
     } catch (const exception &e) {
         cerr << "Exception: " << e.what() << endl;
