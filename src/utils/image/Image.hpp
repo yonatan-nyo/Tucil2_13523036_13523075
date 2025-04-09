@@ -4,9 +4,11 @@
 #include "Pixel.hpp"
 #include <filesystem>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <vector>
 
+namespace fs = std::filesystem;
 using namespace std;
 
 class Image {
@@ -23,7 +25,7 @@ public:
     int getPixelCount() const;
     Pixel getMean(int fromX, int fromY, int toX, int toY) const;
 
-    static bool saveFromMatrix(const vector<vector<Pixel>> &imageMatrix, int width, int height, const string &filePath);
+    static void saveFromMatrix(const vector<vector<Pixel>> &imageMatrix, int width, int height, int channels, fs::path &filePath);
 
     friend ostream &operator<<(ostream &os, const Image &image);
 };

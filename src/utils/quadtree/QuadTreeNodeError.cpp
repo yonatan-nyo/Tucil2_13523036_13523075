@@ -10,23 +10,32 @@
 using namespace std;
 
 double QuadTreeNode::computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const {
-    double error = 0.0;
+    Pixel errorPixel;
     if (pickMethod == 1) {
-        Pixel variancePixel = getVariance(image, fromX, fromY, toX, toY);
-        error = (variancePixel.r + variancePixel.g + variancePixel.b + variancePixel.a) / 4.0;
+        errorPixel = getVariance(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 2) {
-        Pixel madPixel = getMeanAbsoluteDeviation(image, fromX, fromY, toX, toY);
-        error = (madPixel.r + madPixel.g + madPixel.b + madPixel.a) / 4.0;
+        errorPixel = getMeanAbsoluteDeviation(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 3) {
-        Pixel maxDiffPixel = getMaxPixelDifference(image, fromX, fromY, toX, toY);
-        error = (maxDiffPixel.r + maxDiffPixel.g + maxDiffPixel.b + maxDiffPixel.a) / 4.0;
+        errorPixel = getMaxPixelDifference(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 4) {
-        Pixel entropyPixel = getEntropy(image, fromX, fromY, toX, toY);
-        error = (entropyPixel.r + entropyPixel.g + entropyPixel.b + entropyPixel.a) / 4.0;
+        errorPixel = getEntropy(image, fromX, fromY, toX, toY);
     } else {
         throw invalid_argument("Invalid pick method.");
     }
-    return error;
+
+    int channels = image.channels;
+    double sum = 0.0;
+
+    if (channels >= 1)
+        sum += static_cast<double>(errorPixel.r);
+    if (channels >= 2)
+        sum += static_cast<double>(errorPixel.g);
+    if (channels >= 3)
+        sum += static_cast<double>(errorPixel.b);
+    if (channels >= 4)
+        sum += static_cast<double>(errorPixel.a);
+
+    return sum / static_cast<double>(channels);
 }
 
 Pixel QuadTreeNode::getVariance(Image &image, int fromX, int fromY, int toX, int toY) const {
