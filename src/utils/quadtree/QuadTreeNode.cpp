@@ -8,89 +8,68 @@
 #include <vector>
 
 using namespace std;
-
 QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, double threshold, int minBlockSize)
-    : width(image.width), height(image.height), divided(false), northwest(nullptr), northeast(nullptr), southwest(nullptr), southeast(nullptr) {
+    : fromX(0), fromY(0), width(image.width), height(image.height),
+      divided(false), northwest(nullptr), northeast(nullptr),
+      southwest(nullptr), southeast(nullptr) {
+
     if (image.getPixelCount() == 0) {
         cout << "[QuadTree] Image is empty." << endl;
         return;
     }
-    fromX = 0;
-    fromY = 0;
 
     meanPixel = image.getMean(0, 0, width, height);
-    buildTree(image, 0, 0, width, height, pickMethod, threshold, minBlockSize);
+    buildTree(image, pickMethod, threshold, minBlockSize);
+}
+
+QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY,
+                           int pickMethod, double threshold, int minBlockSize)
+    : fromX(fromX), fromY(fromY), width(toX - fromX), height(toY - fromY),
+      divided(false), northwest(nullptr), northeast(nullptr),
+      southwest(nullptr), southeast(nullptr) {
+
+    if (width <= 0 || height <= 0) {
+        throw invalid_argument("Invalid dimensions for QuadTreeNode.");
+    }
+
+    meanPixel = image.getMean(fromX, fromY, toX, toY);
+    buildTree(image, pickMethod, threshold, minBlockSize);
 }
 
 bool QuadTreeNode::isCanDivide(int width, int height, int minBlockSize) const {
-    // static cast size to double to avoid integer division
     double minBlockSizeD = static_cast<double>(minBlockSize);
     double curSize = static_cast<double>(width * height);
     return ((curSize / 4) > minBlockSizeD) && width > 1 && height > 1;
 }
 
-void QuadTreeNode::buildTree(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize) {
-    width = toX - fromX;
-    height = toY - fromY;
-
-    if (width <= 0 || height <= 0) {
-        throw invalid_argument("Invalid dimensions for QuadTreeNode.");
+void QuadTreeNode::buildTree(Image &image, int pickMethod, double threshold, int minBlockSize) {
+    if (!isCanDivide(width, height, minBlockSize)) {
+        return;
     }
 
-    if (isCanDivide(width, height, minBlockSize)) {
-        int midX = (fromX + toX) / 2;
-        int midY = (fromY + toY) / 2;
-        divided = true;
-
-        // Create subtrees with correct boundaries
-        northwest = new QuadTreeNode(image, fromX, fromY, midX, midY, pickMethod, threshold, minBlockSize);
-        northeast = new QuadTreeNode(image, midX, fromY, toX, midY, pickMethod, threshold, minBlockSize);
-        southwest = new QuadTreeNode(image, fromX, midY, midX, toY, pickMethod, threshold, minBlockSize);
-        southeast = new QuadTreeNode(image, midX, midY, toX, toY, pickMethod, threshold, minBlockSize);
-
-        vector<Pixel> pixelGroup = {northwest->meanPixel, northeast->meanPixel, southwest->meanPixel, southeast->meanPixel};
-        meanPixel = computeAveragePixel(pixelGroup);
-
-        double error = computeError(pickMethod, image, fromX, fromY, toX, toY);
-        if (error < threshold) {
-            deleteChildren();
-            divided = false;
-        }
-    }
-    meanPixel = image.getMean(fromX, fromY, toX, toY);
-}
-
-QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double threshold, int minBlockSize) {
-    this->fromX = fromX;
-    this->fromY = fromY;
-    width = toX - fromX;
-    height = toY - fromY;
-    if (width <= 0 || height <= 0) {
-        throw invalid_argument("Invalid dimensions for QuadTreeNode.");
+    double error = computeError(pickMethod, image, fromX, fromY, fromX + width, fromY + height);
+    if (error < threshold) {
+        return;
     }
 
-    if (isCanDivide(width, height, minBlockSize)) {
-        divided = true;
-        int midX = (fromX + toX) / 2;
-        int midY = (fromY + toY) / 2;
+    // If we reach here, we need to divide the node
+    divided = true;
+    int midX = fromX + width / 2;
+    int midY = fromY + height / 2;
 
-        northwest = new QuadTreeNode(image, fromX, fromY, midX, midY, pickMethod, threshold, minBlockSize);
-        northeast = new QuadTreeNode(image, midX, fromY, toX, midY, pickMethod, threshold, minBlockSize);
-        southwest = new QuadTreeNode(image, fromX, midY, midX, toY, pickMethod, threshold, minBlockSize);
-        southeast = new QuadTreeNode(image, midX, midY, toX, toY, pickMethod, threshold, minBlockSize);
+    // Create the four quadrants
+    northwest = new QuadTreeNode(image, fromX, fromY, midX, midY, pickMethod, threshold, minBlockSize);
+    northeast = new QuadTreeNode(image, midX, fromY, fromX + width, midY, pickMethod, threshold, minBlockSize);
+    southwest = new QuadTreeNode(image, fromX, midY, midX, fromY + height, pickMethod, threshold, minBlockSize);
+    southeast = new QuadTreeNode(image, midX, midY, fromX + width, fromY + height, pickMethod, threshold, minBlockSize);
 
-        vector<Pixel> pixelGroup = {northwest->meanPixel, northeast->meanPixel, southwest->meanPixel, southeast->meanPixel};
-        meanPixel = computeAveragePixel(pixelGroup);
-
-        double error = computeError(pickMethod, image, fromX, fromY, toX, toY);
-        if (error < threshold) {
-            deleteChildren();
-            divided = false;
-        }
-    } else {
-        divided = false;
-    }
-    meanPixel = image.getMean(fromX, fromY, toX, toY);
+    // Update mean pixel based on children
+    vector<Pixel> pixelGroup = {
+        northwest->meanPixel,
+        northeast->meanPixel,
+        southwest->meanPixel,
+        southeast->meanPixel};
+    meanPixel = computeAveragePixel(pixelGroup);
 }
 
 void QuadTreeNode::deleteChildren() {

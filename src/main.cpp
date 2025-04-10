@@ -151,7 +151,7 @@ int main() {
             // Setup untuk binary search
             pickMethod = 1; // Variance
             minBlockSize = 1;
-            double low = 0.0, high = 65025.0, bestThreshold = 0.0, binarySearchStep = 0.000001;
+            double low = 0.0, high = 65025.0, bestThreshold = 0.0, binarySearchStep = 1e-8;
 
             fs::path tempPath = inputFilePath.parent_path() / ("temp_output" + savePath.extension().string());
 
