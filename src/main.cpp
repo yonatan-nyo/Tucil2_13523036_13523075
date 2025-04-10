@@ -79,7 +79,7 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
     cout << inputImage << endl;
 
     startCommandColor();
-    cout << "Do you want to use percentage compression? (0.0 - 1.0) (default: 0, using threshold and minimum block size): ";
+    cout << "Do you want to use percentage compression? (0.0 - 1.0) (input 0 to use threshold and minimum block size): ";
     startInputColor();
     cin >> percentageCompression;
     startInfoColor();
