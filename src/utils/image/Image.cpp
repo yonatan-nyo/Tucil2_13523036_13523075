@@ -118,7 +118,7 @@ void Image::saveFromMatrix(const vector<vector<Pixel>> &imageMatrix, int width, 
     if (actualPath.extension() == ".png") {
         success = stbi_write_png(actualPath.string().c_str(), width, height, channels, outputData.data(), width * channels);
     } else if (actualPath.extension() == ".jpg" || actualPath.extension() == ".jpeg") {
-        success = stbi_write_jpg(actualPath.string().c_str(), width, height, channels, outputData.data(), 100);
+        success = stbi_write_jpg(actualPath.string().c_str(), width, height, channels, outputData.data(), 50);
     } else if (actualPath.extension() == ".bmp") {
         success = stbi_write_bmp(actualPath.string().c_str(), width, height, channels, outputData.data());
     } else if (actualPath.extension() == ".tga") {
