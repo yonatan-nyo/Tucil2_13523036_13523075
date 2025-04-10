@@ -84,6 +84,9 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
     cin >> percentageCompression;
     startInfoColor();
     if (percentageCompression != 0) {
+        if (percentageCompression < 0 || percentageCompression > 1) {
+            throw invalid_argument("Invalid percentage compression value. Must be between 0 and 1.");
+        }
         cout << "Using percentage compression: " << percentageCompression << endl;
         pickMethod = 1;
         threshold = 0.0;
