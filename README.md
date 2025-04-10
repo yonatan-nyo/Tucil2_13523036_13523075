@@ -1,5 +1,9 @@
 # QuadTree Image Error Calculation
 
+<div align="center">
+  <img src="assets/hmif.gif" alt="HMIF">
+</div>
+
 ## Deskripsi Singkat
 
 Program ini mengimplementasikan algoritma QuadTree untuk membagi gambar dan menghitung error berdasarkan beberapa metode statistik seperti Variance, Mean Absolute Deviation, Max Pixel Difference, dan Entropy. Program ini dikembangkan menggunakan C++.
