@@ -45,7 +45,37 @@ Untuk menjalankan program dengan Valgrind guna mendeteksi kebocoran memori:
 make debug
 ```
 
+### Masukkan lokasi file (beserta extension gambar) relatif terhadap folder ini
+
+Contoh masukan yang valid:
+
+```
+test/a/a.png
+test/b/c.png
+test/c/c.jpg
+```
+
+## Menggunakan metode kompresi otomatis
+
+### Pilih metode persentase kompresi
+
+Fitur ini memungkinkan pengguna untuk memasukkan target kompresi yang ingin dicapai dengan memasukkan angka desimal 0.0-1.0.
+
+Jika dimasukkan angka 0, maka fitur ini akan dinonaktifkan.
+
+## Menggunakan metode manual
+
+- Pilih metode error yang diinginkan
+- masukkan Threshold
+- masukkan ukuran minimum blok
+
+### Memasukkan lokasi penyimpanan
+
+Masukkan lokasi penyimpanan gambar dan gif yang diinginkan
+
 ## Author
 
-- 13523036 - Yonatan Edward Njoto
-- 13523075 - Muhammad Dicky Isra
+| Nama                 | NIM      |
+| -------------------- | -------- |
+| Yonatan Edward Njoto | 13523036 |
+| Muhammad Dicky Isra  | 13523075 |
