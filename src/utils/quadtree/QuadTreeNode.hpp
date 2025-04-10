@@ -31,6 +31,7 @@ private:
     double SSIMmean(const Image &img, int fx, int fy, int tx, int ty, int channel) const;
     double SSIMvariance(const Image &img, int fx, int fy, int tx, int ty, int channel, double mu) const;
     double SSIMcovariance(const Image &img1, const Image &img2, int fx, int fy, int tx, int ty, int channel, double mu1, double mu2) const;
+    double calculateError(const double r, const double g, const double b, const double a, const int channels) const;
 
 public:
     QuadTreeNode() = default;
@@ -39,10 +40,10 @@ public:
     ~QuadTreeNode();
 
     void debugTree() const;
-    Pixel getVariance(const Image &image, int fromX, int fromY, int toX, int toY) const;
-    Pixel getMeanAbsoluteDeviation(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    double getVarianceError(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    double getMeanAbsoluteDeviationError(const Image &image, int fromX, int fromY, int toX, int toY) const;
     Pixel getMaxPixelDifference(const Image &image, int fromX, int fromY, int toX, int toY) const;
-    Pixel getEntropy(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    double getEntropyError(const Image &image, int fromX, int fromY, int toX, int toY) const;
     double getSSIM(const Image &original, const Image &compressed, int fromX, int fromY, int toX, int toY) const;
 
     pair<int, int> getStat() const;

@@ -16,13 +16,24 @@ double QuadTreeNode::computeError(int pickMethod, const Image &image, int fromX,
     double errorValue = 0.0;
 
     if (pickMethod == 1) {
-        errorPixel = getVariance(image, fromX, fromY, toX, toY);
+        return getVarianceError(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 2) {
-        errorPixel = getMeanAbsoluteDeviation(image, fromX, fromY, toX, toY);
+        return getMeanAbsoluteDeviationError(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 3) {
         errorPixel = getMaxPixelDifference(image, fromX, fromY, toX, toY);
+        double maxErrorPixel = errorPixel.r;
+        if (image.channels > 1) {
+            maxErrorPixel = max(maxErrorPixel, static_cast<double>(errorPixel.g));
+        }
+        if (image.channels > 2) {
+            maxErrorPixel = max(maxErrorPixel, static_cast<double>(errorPixel.b));
+        }
+        if (image.channels > 3) {
+            maxErrorPixel = max(maxErrorPixel, static_cast<double>(errorPixel.a));
+        }
+        return maxErrorPixel;
     } else if (pickMethod == 4) {
-        errorPixel = getEntropy(image, fromX, fromY, toX, toY);
+        return getEntropyError(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 5) {
         // For SSIM, we want error = 1 - SSIM since SSIM of 1 means perfect similarity
         // Create a temporary image with just the mean pixel value for comparison
@@ -32,20 +43,6 @@ double QuadTreeNode::computeError(int pickMethod, const Image &image, int fromX,
     } else {
         throw invalid_argument("Invalid pick method.");
     }
-
-    int channels = image.channels;
-    double sum = 0.0;
-
-    if (channels >= 1)
-        sum += static_cast<double>(errorPixel.r);
-    if (channels >= 2)
-        sum += static_cast<double>(errorPixel.g);
-    if (channels >= 3)
-        sum += static_cast<double>(errorPixel.b);
-    if (channels >= 4)
-        sum += static_cast<double>(errorPixel.a);
-
-    return sum / static_cast<double>(channels);
 }
 
 Image QuadTreeNode::createMeanImage(const Image &sourceImage, int fromX, int fromY, int toX, int toY) const {
@@ -63,12 +60,25 @@ Image QuadTreeNode::createMeanImage(const Image &sourceImage, int fromX, int fro
     return meanImage;
 }
 
-Pixel QuadTreeNode::getVariance(const Image &image, int fromX, int fromY, int toX, int toY) const {
+double QuadTreeNode::calculateError(const double r, const double g, const double b, const double a, const int channels) const {
+    double error = 0.0;
+    if (channels >= 1)
+        error += r / channels;
+    if (channels >= 2)
+        error += g / channels;
+    if (channels >= 3)
+        error += b / channels;
+    if (channels >= 4)
+        error += a / channels;
+    return error;
+}
+
+double QuadTreeNode::getVarianceError(const Image &image, int fromX, int fromY, int toX, int toY) const {
     double retR = 0, retG = 0, retB = 0, retA = 0;
     int count = (toX - fromX) * (toY - fromY);
 
     if (count == 0)
-        return Pixel(0, 0, 0, 0);
+        return 0.0;
 
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
@@ -85,20 +95,15 @@ Pixel QuadTreeNode::getVariance(const Image &image, int fromX, int fromY, int to
         }
     }
 
-    // Clamp values to valid unsigned char range
-    return Pixel(
-        min(255.0, max(0.0, retR)),
-        min(255.0, max(0.0, retG)),
-        min(255.0, max(0.0, retB)),
-        min(255.0, max(0.0, retA)));
+    return calculateError(retR, retG, retB, retA, image.channels);
 }
 
-Pixel QuadTreeNode::getMeanAbsoluteDeviation(const Image &image, int fromX, int fromY, int toX, int toY) const {
+double QuadTreeNode::getMeanAbsoluteDeviationError(const Image &image, int fromX, int fromY, int toX, int toY) const {
     double retR = 0, retG = 0, retB = 0, retA = 0;
     int count = (toX - fromX) * (toY - fromY);
 
     if (count == 0)
-        return Pixel(0, 0, 0, 0);
+        return 0.0;
 
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
@@ -111,11 +116,7 @@ Pixel QuadTreeNode::getMeanAbsoluteDeviation(const Image &image, int fromX, int 
     }
 
     // Clamp values to valid unsigned char range
-    return Pixel(
-        min(255.0, max(0.0, retR)),
-        min(255.0, max(0.0, retG)),
-        min(255.0, max(0.0, retB)),
-        min(255.0, max(0.0, retA)));
+    return calculateError(retR, retG, retB, retA, image.channels);
 }
 
 Pixel QuadTreeNode::getMaxPixelDifference(const Image &image, int fromX, int fromY, int toX, int toY) const {
@@ -146,13 +147,12 @@ double QuadTreeNode::computeEntropy(unordered_map<int, int> &frequencyMap, int t
     return entropy;
 }
 
-Pixel QuadTreeNode::getEntropy(const Image &image, int fromX, int fromY, int toX, int toY) const {
-    Pixel entropyPixel = {0, 0, 0, 0};
+double QuadTreeNode::getEntropyError(const Image &image, int fromX, int fromY, int toX, int toY) const {
     unordered_map<int, int> freqR, freqG, freqB, freqA;
     int totalPixels = (toX - fromX) * (toY - fromY);
 
     if (totalPixels == 0)
-        return entropyPixel;
+        return 0.0;
 
     for (int y = fromY; y < toY; ++y) {
         for (int x = fromX; x < toX; ++x) {
@@ -169,13 +169,7 @@ Pixel QuadTreeNode::getEntropy(const Image &image, int fromX, int fromY, int toX
     double entropyB = computeEntropy(freqB, totalPixels);
     double entropyA = computeEntropy(freqA, totalPixels);
 
-    // Convert entropy to 0-255 scale per channel and clamp
-    entropyPixel.r = static_cast<unsigned char>(min(255.0, max(0.0, entropyR)));
-    entropyPixel.g = static_cast<unsigned char>(min(255.0, max(0.0, entropyG)));
-    entropyPixel.b = static_cast<unsigned char>(min(255.0, max(0.0, entropyB)));
-    entropyPixel.a = static_cast<unsigned char>(min(255.0, max(0.0, entropyA)));
-
-    return entropyPixel;
+    return calculateError(entropyR, entropyG, entropyB, entropyA, image.channels);
 }
 
 double QuadTreeNode::SSIMmean(const Image &img, int fx, int fy, int tx, int ty, int channel) const {
