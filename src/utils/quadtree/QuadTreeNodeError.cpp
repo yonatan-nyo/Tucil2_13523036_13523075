@@ -11,6 +11,19 @@ const double C1 = (0.01 * 255) * (0.01 * 255);
 const double C2 = (0.03 * 255) * (0.03 * 255);
 using namespace std;
 
+double QuadTreeNode::calculateError(const double r, const double g, const double b, const double a, const int channels) const {
+    double error = 0.0;
+    if (channels >= 1)
+        error += r / channels;
+    if (channels >= 2)
+        error += g / channels;
+    if (channels >= 3)
+        error += b / channels;
+    if (channels >= 4)
+        error += a / channels;
+    return error;
+}
+
 double QuadTreeNode::computeError(int pickMethod, const Image &image, int fromX, int fromY, int toX, int toY) const {
     Pixel errorPixel;
     double errorValue = 0.0;
@@ -21,17 +34,7 @@ double QuadTreeNode::computeError(int pickMethod, const Image &image, int fromX,
         return getMeanAbsoluteDeviationError(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 3) {
         errorPixel = getMaxPixelDifference(image, fromX, fromY, toX, toY);
-        double maxErrorPixel = errorPixel.r;
-        if (image.channels > 1) {
-            maxErrorPixel = max(maxErrorPixel, static_cast<double>(errorPixel.g));
-        }
-        if (image.channels > 2) {
-            maxErrorPixel = max(maxErrorPixel, static_cast<double>(errorPixel.b));
-        }
-        if (image.channels > 3) {
-            maxErrorPixel = max(maxErrorPixel, static_cast<double>(errorPixel.a));
-        }
-        return maxErrorPixel;
+        return calculateError(errorPixel.r, errorPixel.g, errorPixel.b, errorPixel.a, image.channels);
     } else if (pickMethod == 4) {
         return getEntropyError(image, fromX, fromY, toX, toY);
     } else if (pickMethod == 5) {
@@ -58,19 +61,6 @@ Image QuadTreeNode::createMeanImage(const Image &sourceImage, int fromX, int fro
     }
 
     return meanImage;
-}
-
-double QuadTreeNode::calculateError(const double r, const double g, const double b, const double a, const int channels) const {
-    double error = 0.0;
-    if (channels >= 1)
-        error += r / channels;
-    if (channels >= 2)
-        error += g / channels;
-    if (channels >= 3)
-        error += b / channels;
-    if (channels >= 4)
-        error += a / channels;
-    return error;
 }
 
 double QuadTreeNode::getVarianceError(const Image &image, int fromX, int fromY, int toX, int toY) const {
