@@ -169,14 +169,11 @@ Pixel QuadTreeNode::getEntropy(const Image &image, int fromX, int fromY, int toX
     double entropyB = computeEntropy(freqB, totalPixels);
     double entropyA = computeEntropy(freqA, totalPixels);
 
-    // Clamp entropy values to valid unsigned char range
-    double entropyRGB = (entropyR + entropyG + entropyB + entropyA) / 4.0;
-    unsigned char clampedEntropy = static_cast<unsigned char>(min(255.0, max(0.0, entropyRGB)));
-
-    entropyPixel.r = clampedEntropy;
-    entropyPixel.g = clampedEntropy;
-    entropyPixel.b = clampedEntropy;
-    entropyPixel.a = clampedEntropy;
+    // Convert entropy to 0-255 scale per channel and clamp
+    entropyPixel.r = static_cast<unsigned char>(min(255.0, max(0.0, entropyR)));
+    entropyPixel.g = static_cast<unsigned char>(min(255.0, max(0.0, entropyG)));
+    entropyPixel.b = static_cast<unsigned char>(min(255.0, max(0.0, entropyB)));
+    entropyPixel.a = static_cast<unsigned char>(min(255.0, max(0.0, entropyA)));
 
     return entropyPixel;
 }
