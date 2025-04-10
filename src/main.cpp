@@ -145,6 +145,10 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
         cout << "Tidak ada path diberikan. Menggunakan default: " << gifSavePath << endl;
     } else {
         gifSavePath = fs::absolute(fs::path(gifPathStr));
+        if (gifSavePath.extension() != ".gif") {
+            gifSavePath.replace_extension(".gif");
+            cout << "Ekstensi file GIF tidak valid. Menggunakan ekstensi .gif: " << gifSavePath << endl;
+        }
     }
 
     cout << "File hasil akan disimpan di: " << savePath << endl;
