@@ -16,7 +16,6 @@ using namespace std;
 
 Image::Image(const string &filename) {
     unsigned char *data = stbi_load(filename.c_str(), &this->width, &this->height, &this->channels, 0);
-    cout << "CHANNELS: " << this->channels << endl;
 
     if (!data) {
         throw runtime_error("Error: Tidak dapat memuat gambar " + filename + ". Error: " + stbi_failure_reason());

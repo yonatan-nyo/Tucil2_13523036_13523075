@@ -11,6 +11,18 @@
 namespace fs = std::filesystem;
 using namespace std;
 
+void startCommandColor() {
+    cout << "\033[1;37m";
+}
+
+void startInputColor() {
+    cout << "\033[1;33m";
+}
+
+void startInfoColor() {
+    cout << "\033[0m";
+}
+
 fs::path getDefaultPath(const fs::path &inputFilePath, int pickMethod, double threshold, int minBlockSize, double percentageCompression = 0.0) {
     fs::path parentPath = inputFilePath.parent_path();
     string inputBase = inputFilePath.stem().string();
@@ -45,9 +57,12 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
                 int &pickMethod, double &threshold, int &minBlockSize,
                 Image &inputImage, double &percentageCompression) {
     // Input image filename
+    startCommandColor();
     cout << "Enter image file name: ";
+    startInputColor();
     string inputStr;
     getline(cin, inputStr);
+    startInfoColor();
     inputFilePath = fs::absolute(fs::path(inputStr));
 
     // Check if file exists
@@ -59,25 +74,33 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
 
     cout << "File exists, initializing image." << endl;
     inputImage = Image(inputFilePath.string());
-    cout << "Image initialized." << endl;
+    cout << "Image initialized." << endl
+         << endl;
     cout << inputImage << endl;
 
-    cout << "Do you want to use percentage compression? (0.0 - 1.0) (default: 0): ";
+    startCommandColor();
+    cout << "Do you want to use percentage compression? (0.0 - 1.0) (default: 0, using threshold and minimum block size): ";
+    startInputColor();
     cin >> percentageCompression;
+    startInfoColor();
     if (percentageCompression != 0) {
         cout << "Using percentage compression: " << percentageCompression << endl;
         pickMethod = 1;
         threshold = 0.0;
         minBlockSize = 1;
     } else {
+        cout << endl;
         cout << "Pilih Metode Perhitungan Error" << endl;
         cout << "1. Variance" << endl;
         cout << "2. Mean Absolute Deviation" << endl;
         cout << "3. Max Pixel Difference" << endl;
         cout << "4. Entropy" << endl;
         cout << "5. Structural Similarity Index" << endl;
+        startCommandColor();
         cout << "Masukkan metode (1-5): ";
+        startInputColor();
         cin >> pickMethod;
+        startInfoColor();
         cout << endl;
 
         double minThreshold, maxThreshold;
@@ -91,14 +114,17 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
             minThreshold = 0;
             maxThreshold = 8.0;
         } else if (pickMethod == 5) {
-            minThreshold = -1.0;
+            minThreshold = 0.0;
             maxThreshold = 1.0;
         } else {
             throw invalid_argument("Invalid method selected.");
         }
 
-        cout << "Masukkan Threshold (ambang batas): ";
+        startCommandColor();
+        cout << "Masukkan Threshold atau ambang batas ( " << minThreshold << " ≤ x ≤ " << maxThreshold << " ): ";
+        startInputColor();
         cin >> threshold;
+        startInfoColor();
         if (threshold < minThreshold) {
             cout << "Threshold tidak boleh kurang dari " << minThreshold << ", di set ke " << minThreshold << endl;
             threshold = minThreshold;
@@ -107,8 +133,11 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
             threshold = maxThreshold;
         }
 
+        startCommandColor();
         cout << "Masukkan ukuran blok minimum: ";
+        startInputColor();
         cin >> minBlockSize;
+        startInfoColor();
         if (minBlockSize < 1) {
             cout << "Ukuran blok minimum tidak boleh kurang dari 1!" << endl;
             minBlockSize = 1;
@@ -118,12 +147,17 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
 
     cin.ignore();
     fs::path defaultSavePath = getDefaultPath(inputFilePath, pickMethod, threshold, minBlockSize, percentageCompression);
+    startCommandColor();
     cout << endl
          << "Masukkan alamat file hasil" << endl;
+    startInfoColor();
     cout << "[Default: " << defaultSavePath << "]" << endl;
+    startCommandColor();
     cout << "(tekan Enter untuk default): ";
     string savePathStr;
+    startInputColor();
     getline(cin, savePathStr);
+    startInfoColor();
 
     if (savePathStr.empty()) {
         savePath = defaultSavePath;
@@ -133,12 +167,17 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
     }
 
     fs::path defaultGifPath = getDefaultGifPath(inputFilePath, pickMethod, threshold, minBlockSize, percentageCompression);
+    startCommandColor();
     cout << endl
          << "Masukkan alamat file hasil GIF" << endl;
+    startInfoColor();
     cout << "[Default: " << defaultGifPath << "]" << endl;
+    startCommandColor();
     cout << "(tekan Enter untuk default): ";
     string gifPathStr;
+    startInputColor();
     getline(cin, gifPathStr);
+    startInfoColor();
 
     if (gifPathStr.empty()) {
         gifSavePath = defaultGifPath;
@@ -150,9 +189,6 @@ void initialize(fs::path &inputFilePath, fs::path &savePath, fs::path &gifSavePa
             cout << "Ekstensi file GIF tidak valid. Menggunakan ekstensi .gif: " << gifSavePath << endl;
         }
     }
-
-    cout << "File hasil akan disimpan di: " << savePath << endl;
-    cout << "GIF akan disimpan di: " << gifSavePath << endl;
     cout << endl;
 }
 
@@ -195,7 +231,7 @@ double findBestThreshold(const Image &inputImage, double percentageCompression, 
 }
 
 void printStats(double executionTime, const fs::path &inputFilePath, const fs::path &savePath, const QuadTreeNode &quadRoot) {
-    cout << "====== stats =======" << endl;
+    cout << "\033[1;37m====== stats =======\033[0m" << endl;
     cout << "Waktu Eksekusi: " << executionTime << " seconds" << endl;
 
     long long inputSize = File::getFileSize(inputFilePath.string());
@@ -225,7 +261,6 @@ void processAndSaveImage(const Image &inputImage, int pickMethod, double thresho
     quadRoot.buildMatrix(imageMatrix);
     cout << "Matrix built." << endl;
 
-    cout << "Saving image..." << endl;
     Image::saveFromMatrix(imageMatrix, inputImage.width, inputImage.height, inputImage.channels, savePath);
     cout << "Image saved to: " << savePath << endl;
     cout << endl;
@@ -235,11 +270,29 @@ void processAndSaveImage(const Image &inputImage, int pickMethod, double thresho
 
     printStats(duration.count(), inputFilePath, savePath, quadRoot);
     auto stat = quadRoot.getStat();
+
+    cout << endl;
     GIFMaker::generateAndSave(stat.first, &quadRoot, inputImage.width, inputImage.height, gifSavePath);
 }
 
 int main() {
     try {
+        cout << "\033[1;33m";
+        cout << "=========================\n";
+        cout << "              .." << endl;
+        cout << "             ( '`< \033[1;34mITB\033[1;33m" << endl;
+        cout << "              )(" << endl;
+        cout << "       ( ----'  '." << endl;
+        cout << "       (         ;" << endl;
+        cout << "        (_______,'" << endl;
+        cout << "\033[1;34m";
+        cout << "~^~^~^~^~^~^~^~^~^~^~^~^~" << endl;
+        cout << "\033[1;37m";
+        cout << "QuadTree Image Compressor\n";
+        cout << "\033[1;34m";
+        cout << "=========================\n";
+        cout << "\033[0m" << endl;
+
         fs::path inputFilePath, savePath, gifSavePath;
         int pickMethod, minBlockSize;
         double threshold;
