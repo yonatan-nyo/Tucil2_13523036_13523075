@@ -21,6 +21,7 @@ Program ini mendukung berbagai format gambar seperti `.png` , `.jpg` , `.jpeg` ,
   - **Mean Absolute Deviation (MAD)**
   - **Max Pixel Difference**
   - **Entropy**
+  - **SSIM**
 - Dua mode kompresi: otomatis dan manual.
 - Penyimpanan hasil dalam format gambar dan GIF.
 - Kompatibel dengan Unix-based OS dan WSL (untuk pengguna Windows).
