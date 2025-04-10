@@ -8,7 +8,7 @@
 #include <vector>
 
 using namespace std;
-QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, double threshold, int minBlockSize)
+QuadTreeNode::QuadTreeNode(const Image &image, int pickMethod, double threshold, int minBlockSize)
     : fromX(0), fromY(0), width(image.width), height(image.height),
       divided(false), northwest(nullptr), northeast(nullptr),
       southwest(nullptr), southeast(nullptr) {
@@ -22,7 +22,7 @@ QuadTreeNode::QuadTreeNode(Image &image, int pickMethod, double threshold, int m
     buildTree(image, pickMethod, threshold, minBlockSize);
 }
 
-QuadTreeNode::QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY,
+QuadTreeNode::QuadTreeNode(const Image &image, int fromX, int fromY, int toX, int toY,
                            int pickMethod, double threshold, int minBlockSize)
     : fromX(fromX), fromY(fromY), width(toX - fromX), height(toY - fromY),
       divided(false), northwest(nullptr), northeast(nullptr),
@@ -42,7 +42,7 @@ bool QuadTreeNode::isCanDivide(int width, int height, int minBlockSize) const {
     return ((curSize / 4) > minBlockSizeD) && width > 1 && height > 1;
 }
 
-void QuadTreeNode::buildTree(Image &image, int pickMethod, double threshold, int minBlockSize) {
+void QuadTreeNode::buildTree(const Image &image, int pickMethod, double threshold, int minBlockSize) {
     if (!isCanDivide(width, height, minBlockSize)) {
         return;
     }

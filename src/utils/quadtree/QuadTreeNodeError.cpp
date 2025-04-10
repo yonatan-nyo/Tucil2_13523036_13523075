@@ -11,7 +11,7 @@ const double C1 = (0.01 * 255) * (0.01 * 255);
 const double C2 = (0.03 * 255) * (0.03 * 255);
 using namespace std;
 
-double QuadTreeNode::computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const {
+double QuadTreeNode::computeError(int pickMethod, const Image &image, int fromX, int fromY, int toX, int toY) const {
     Pixel errorPixel;
     double errorValue = 0.0;
 
@@ -63,7 +63,7 @@ Image QuadTreeNode::createMeanImage(const Image &sourceImage, int fromX, int fro
     return meanImage;
 }
 
-Pixel QuadTreeNode::getVariance(Image &image, int fromX, int fromY, int toX, int toY) const {
+Pixel QuadTreeNode::getVariance(const Image &image, int fromX, int fromY, int toX, int toY) const {
     double retR = 0, retG = 0, retB = 0, retA = 0;
     int count = (toX - fromX) * (toY - fromY);
 
@@ -93,7 +93,7 @@ Pixel QuadTreeNode::getVariance(Image &image, int fromX, int fromY, int toX, int
         min(255.0, max(0.0, retA)));
 }
 
-Pixel QuadTreeNode::getMeanAbsoluteDeviation(Image &image, int fromX, int fromY, int toX, int toY) const {
+Pixel QuadTreeNode::getMeanAbsoluteDeviation(const Image &image, int fromX, int fromY, int toX, int toY) const {
     double retR = 0, retG = 0, retB = 0, retA = 0;
     int count = (toX - fromX) * (toY - fromY);
 
@@ -118,7 +118,7 @@ Pixel QuadTreeNode::getMeanAbsoluteDeviation(Image &image, int fromX, int fromY,
         min(255.0, max(0.0, retA)));
 }
 
-Pixel QuadTreeNode::getMaxPixelDifference(Image &image, int fromX, int fromY, int toX, int toY) const {
+Pixel QuadTreeNode::getMaxPixelDifference(const Image &image, int fromX, int fromY, int toX, int toY) const {
     int maxDiffR = 0, maxDiffG = 0, maxDiffB = 0, maxDiffA = 0;
 
     for (int y = fromY; y < toY; ++y) {
@@ -146,7 +146,7 @@ double QuadTreeNode::computeEntropy(unordered_map<int, int> &frequencyMap, int t
     return entropy;
 }
 
-Pixel QuadTreeNode::getEntropy(Image &image, int fromX, int fromY, int toX, int toY) const {
+Pixel QuadTreeNode::getEntropy(const Image &image, int fromX, int fromY, int toX, int toY) const {
     Pixel entropyPixel = {0, 0, 0, 0};
     unordered_map<int, int> freqR, freqG, freqB, freqA;
     int totalPixels = (toX - fromX) * (toY - fromY);
@@ -261,7 +261,7 @@ double QuadTreeNode::SSIMcovariance(const Image &img1, const Image &img2, int fx
     return sumCov / count;
 }
 
-double QuadTreeNode::getSSIM(Image &original, Image &compressed, int fromX, int fromY, int toX, int toY) const {
+double QuadTreeNode::getSSIM(const Image &original, const Image &compressed, int fromX, int fromY, int toX, int toY) const {
     int channels = original.channels;
 
     if (channels <= 0 || channels > 4) {

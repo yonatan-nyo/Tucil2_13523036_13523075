@@ -23,8 +23,8 @@ private:
     void showTree(int startIndentation) const;
     double computeEntropy(unordered_map<int, int> &frequencyMap, int totalPixels) const;
     Pixel computeAveragePixel(vector<Pixel> &pixels) const;
-    double computeError(int pickMethod, Image &image, int fromX, int fromY, int toX, int toY) const;
-    void buildTree(Image &image, int pickMethod, double threshold, int minBlockSize);
+    double computeError(int pickMethod, const Image &image, int fromX, int fromY, int toX, int toY) const;
+    void buildTree(const Image &image, int pickMethod, double threshold, int minBlockSize);
     bool isCanDivide(int width, int height, int minBlockSize) const;
     void deleteChildren();
     Image createMeanImage(const Image &sourceImage, int fromX, int fromY, int toX, int toY) const;
@@ -34,16 +34,16 @@ private:
 
 public:
     QuadTreeNode() = default;
-    QuadTreeNode(Image &image, int pickMethod, double treshold, int minBlockSize);
-    QuadTreeNode(Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double treshold, int minBlockSize);
+    QuadTreeNode(const Image &image, int pickMethod, double treshold, int minBlockSize);
+    QuadTreeNode(const Image &image, int fromX, int fromY, int toX, int toY, int pickMethod, double treshold, int minBlockSize);
     ~QuadTreeNode();
 
     void debugTree() const;
-    Pixel getVariance(Image &image, int fromX, int fromY, int toX, int toY) const;
-    Pixel getMeanAbsoluteDeviation(Image &image, int fromX, int fromY, int toX, int toY) const;
-    Pixel getMaxPixelDifference(Image &image, int fromX, int fromY, int toX, int toY) const;
-    Pixel getEntropy(Image &image, int fromX, int fromY, int toX, int toY) const;
-    double getSSIM(Image &original, Image &compressed, int fromX, int fromY, int toX, int toY) const;
+    Pixel getVariance(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    Pixel getMeanAbsoluteDeviation(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    Pixel getMaxPixelDifference(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    Pixel getEntropy(const Image &image, int fromX, int fromY, int toX, int toY) const;
+    double getSSIM(const Image &original, const Image &compressed, int fromX, int fromY, int toX, int toY) const;
 
     pair<int, int> getStat() const;
     void buildMatrix(vector<vector<Pixel>> &imageMatrix) const;
